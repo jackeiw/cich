@@ -27,8 +27,24 @@ cnkiconf:
     sendFilepathURL: http://127.0.0.1/cich/request/ExecZipAPI.ashx?bmsah={bmsah}&zippath={zippath}
     getQSYJSSystemId: 330000
     getQSYJSToken: test
+    # 获取案由接口参数
     otherapis: GetAJAKXX|tyyw_token+systemid$$GetAJAQZYXX|systemid+tyyw_token
-
+    # 获取文件方式 0:27号接口方式； 1:4、5号接口； 2:先27在4、5号接口
+    getFileType: 0
+    # 获取案件卷宗全目录
+    getAJJZQML: GetAJJZQML
+    getAJJZQMLVersion: 1.0.0
+    getAJJZQMLMethon: post
+    getAJJZQMLSystemId: 330000
+    getAJJZQMLToken: test
+    # 获取案件卷宗文件
+    getAJJZWJ: GetAJJZWJ
+    getAJJZWJVersion: 1.0.0
+    getAJJZWJMethon: post
+    getAJJZWJSystemId: 330000
+    getAJJZWJToken: test
+    #激活类案推送的文件夹解析接口
+    sendFilepathURL1: http://127.0.0.1/cich/request/ExecZipAPI.ashx?bmsah={bmsah}&path={path}
 
 logging:
   file: D:\test\log\springboot.log

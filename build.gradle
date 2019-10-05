@@ -28,4 +28,6 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.2'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28'
+    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.19'
 }
