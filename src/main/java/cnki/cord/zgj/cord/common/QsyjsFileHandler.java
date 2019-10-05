@@ -471,10 +471,10 @@ public class QsyjsFileHandler {
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
 
         String invokeURL = sendFilepathURL.replace("{bmsah}",encoderMD5Str).replace("{zippath}", zipPath);
-        newLog.info("起诉意见书开始解析：【" + invokeURL + "】！");
+        newLog.info("起诉意见书zip包开始解析：【" + invokeURL + "】！");
         //触发解压和提取要素事件
         int retCode = HttpUtils.sendGetCode(invokeURL, "");
-        newLog.info("起诉意见书解析完成：【" + retCode + "】！");
+        newLog.info("起诉意见书zip包解析完成：【" + retCode + "】！");
         if(retCode != 200){
             //TODO: 如果出现请求错误，备份各段时间需要续传
 
