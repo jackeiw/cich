@@ -29,7 +29,7 @@ public class WenshuMsgReceiverProxy {
     // 通过自定义注解类Receiver设置需要接收消息的一级主题名称topic，二级主题名称subtopic默认为"*"
     @Receiver(topic = "ZNBM_BMWC")
     public void receive(WsMessageObject WsMsgObj, TYYWMessage tyywMessage) {
-        newLog.info(Thread.currentThread().getName() + "，收到ZNBM_BMWC消息：" + WsMsgObj
+        newLog.info(Thread.currentThread().getName() + "，收到ZNBM_BMWC消息：" + tyywMessage.getMessage()
                 + "，消息ID：" + tyywMessage.getMsgID());
 
         if (StringUtils.isNotBlank(WsMsgObj.bmsah)){ //TODO:部门受案号传过来可能为乱码，需要处理一下。
