@@ -25,7 +25,7 @@ public class BDAJReceiverProxy {
     // 通过自定义注解类Receiver设置需要接收消息的一级主题名称topic，二级主题名称subtopic默认为"*"
     @Receiver(topic = "DZJZ_BDAJ")
     public void receive(BdMessageObject BdMsgObj, TYYWMessage tyywMessage) {
-        newLog.info(Thread.currentThread().getName() + "，收到DZJZ_BDAJ消息：" + BdMsgObj
+        newLog.info(Thread.currentThread().getName() + "，收到DZJZ_BDAJ消息：" + tyywMessage.getMessage()
                 + "，消息ID：" + tyywMessage.getMsgID());
 
         if (StringUtils.isNotBlank(BdMsgObj.bmsah)){ //TODO:部门受案号传过来可能为乱码，需要处理一下。
