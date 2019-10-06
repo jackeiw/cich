@@ -138,7 +138,7 @@ public class QsyjsFileHandler {
                     //downloadFile(url,wsMsgObject.bmsah,java.util.UUID.randomUUID() + ".zip");
                     downloadFile(url, wsMsgObject,EncryptionUtils.getMD5(wsMsgObject.bmsah) + ".zip");
                 } else {
-                    //newLog.info("获取【" + wsMsgObject.bmsah + "】下载地址失败，Info:" + message);
+                    newLog.info("获取【" + wsMsgObject.bmsah + "】下载地址失败，Info:" + message);
                     if(getFileType == 2){
                         getFilesByDir(wsMsgObject);
                     }
@@ -161,8 +161,9 @@ public class QsyjsFileHandler {
      * @throws Exception
      */
     public void getFilesByDir(BaseMessageObject wsMsgObject){
-        getAJJZAllDir(wsMsgObject);
-        invokeDirExplain(wsMsgObject.bmsah);
+        if(getAJJZAllDir(wsMsgObject)) {
+            invokeDirExplain(wsMsgObject.bmsah);
+        }
     }
 
     @Value("${cnkiconf.csb.getAJJZType}")
@@ -187,7 +188,8 @@ public class QsyjsFileHandler {
      * @param wsMsgObject 文书基础实体
      * @throws Exception
      */
-    public void getAJJZAllDir(BaseMessageObject wsMsgObject){
+    public boolean getAJJZAllDir(BaseMessageObject wsMsgObject){
+        boolean retResult = false;
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL(csb_url) // 设置CSB服务地址
                 .api(getAJJZQML) // 设置服务名
@@ -210,7 +212,7 @@ public class QsyjsFileHandler {
         }
         if(ret != null) {
             String retJson = ret.getResponseStr();
-            //newLog.info(retJson);
+            newLog.info("调用卷宗目录返回：" + retJson);
             JSONObject jsonObject = JSONObject.parseObject(retJson);
             String code = jsonObject.getString("code");
             Boolean success = jsonObject.getBoolean("success");
@@ -260,7 +262,7 @@ public class QsyjsFileHandler {
                                 jzwj.wjhz = wjhz; //文件后缀
                                 jzwj.wjsxh = wjsxh; //文件顺序号
                                 //jzwjObjectList.add(jzwj);
-                                getAJJZWJFiles(wsMsgObject, jzwj);
+                                retResult = retResult || getAJJZWJFiles(wsMsgObject, jzwj);
                             }
                         }
                         else{
@@ -274,12 +276,17 @@ public class QsyjsFileHandler {
                             jzwj.wjmc = wjmc; //文件名称
                             jzwj.wjhz = wjhz; //文件后缀
                             jzwj.wjsxh = wjsxh; //文件顺序号
-                            getAJJZWJFiles(wsMsgObject, jzwj);
+                            retResult = retResult || getAJJZWJFiles(wsMsgObject, jzwj);
                         }
                     }
                 }
             }
         }
+        else{
+            newLog.info("调用卷宗目录返回为空！");
+        }
+
+        return retResult;
     }
 
     public void testJson(){
@@ -418,7 +425,8 @@ public class QsyjsFileHandler {
      * @param jzwj 文件实体
      * @throws Exception
      */
-    public void getAJJZWJFiles(BaseMessageObject wsMsgObject, JzwjObject jzwj){
+    public boolean getAJJZWJFiles(BaseMessageObject wsMsgObject, JzwjObject jzwj){
+        boolean getOK = false;
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL(csb_url) // 设置CSB服务地址
                 .api(getAJJZWJ) // 设置服务名
@@ -442,12 +450,12 @@ public class QsyjsFileHandler {
         }
         if(ret != null) {
             String retJson = ret.getResponseStr();
-            //newLog.info(retJson);
             JSONObject jsonObject = JSONObject.parseObject(retJson);
             String code = jsonObject.getString("code");
             Boolean success = jsonObject.getBoolean("success");
             String message = jsonObject.getString("message");
             if(success){
+                newLog.info("获取卷宗文件Get Success!"); //retJson
                 try{
                     String dataBase64Str = jsonObject.getString("data");
                     byte[] fileByteStream = Base64Utils.decode(dataBase64Str);
@@ -467,12 +475,20 @@ public class QsyjsFileHandler {
                     if(fos!=null){
                         fos.close();
                     }
+                    getOK = true;
                 }
                 catch (IOException e){
                     e.printStackTrace();
                 }
             }
+            else{
+                newLog.info("获取卷宗文件Get Fail!");
+            }
         }
+        else{
+            newLog.info("获取卷宗文件接口返回为空！");
+        }
+        return getOK;
     }
 
     @Value("${cnkiconf.csb.getQSYJSPath}")
