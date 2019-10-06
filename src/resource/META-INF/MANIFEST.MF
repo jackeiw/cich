@@ -20,6 +20,7 @@ Class-Path: spring-boot-starter-tomcat-2.1.8.RELEASE.jar logback-core-
  bind-2.9.9.3.jar logback-classic-1.2.3.jar httpclient-4.5.7.jar jul-t
  o-slf4j-1.7.28.jar commons-beanutils-1.9.2.jar spring-webmvc-5.1.9.RE
  LEASE.jar commons-codec-1.11.jar hibernate-validator-6.0.17.Final.jar
-  spring-boot-2.1.8.RELEASE.jar jackson-datatype-jsr310-2.9.9.jar
+  spring-boot-2.1.8.RELEASE.jar jackson-datatype-jsr310-2.9.9.jar comm
+ ons-compress-1.19.jar sqlite-jdbc-3.28.0.jar
 Main-Class: cnki.cord.zgj.cord.MqasApplication
 

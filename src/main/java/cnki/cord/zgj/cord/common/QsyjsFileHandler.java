@@ -14,11 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-//import sun.misc.BASE64Encoder;
+import sun.misc.BASE64Encoder;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -164,6 +165,9 @@ public class QsyjsFileHandler {
         invokeDirExplain(wsMsgObject.bmsah);
     }
 
+    @Value("${cnkiconf.csb.getAJJZType}")
+    private int getAJJZType;
+
     @Value("${cnkiconf.csb.getAJJZQML}")
     private String getAJJZQML;
 
@@ -216,44 +220,65 @@ public class QsyjsFileHandler {
                 if(StringUtils.isNotBlank(data)){
                     //卷宗目录
                     JSONObject mlObject = JSONObject.parseObject(data);
-                    JSONArray jzmlArray = mlObject.getJSONArray("jzml");
-                    int mllx; //目录类型
-                    String mlxsmc = null; //目录显示名称
                     String mlbh = null; //目录编号
-                    for(int i = 0; i < jzmlArray.size(); i++){
-                        JSONObject mlObj = (JSONObject)jzmlArray.get(i);
-                        mlxsmc = mlObj.getString("mlxsmc");
-                        mllx = mlObj.getInteger("mllx");
-                        mlbh = mlObj.getString("mlbh");
-                        if(mllx == 1){
-                            break;
+                    if(getAJJZType == 1){
+                        JSONArray jzmlArray = mlObject.getJSONArray("jzml");
+                        int mllx; //目录类型
+                        String mlxsmc = null; //目录显示名称
+                        for(int i = 0; i < jzmlArray.size(); i++){
+                            JSONObject mlObj = (JSONObject)jzmlArray.get(i);
+                            /*mllx = mlObj.getInteger("mllx");
+                            if(mllx == 1){
+                                break;
+                            }*/
+                            if(mlxsmc.equals("起诉意见书")){
+                                mlbh = mlObj.getString("mlbh");
+                                mlxsmc = mlObj.getString("mlxsmc");
+                                break;
+                            }
                         }
                     }
 
                     //List<JzwjObject> jzwjObjectList = new LinkedList<JzwjObject>();
                     String wjxh,wjmc,wjhz;
+                    int wjsxh;
+                    //卷宗文件
                     JSONArray jzmlwjArray = mlObject.getJSONArray("jzmlwj");
                     for(int j = 0; j < jzmlwjArray.size(); j++){
                         JSONObject mlwjObj = (JSONObject)jzmlwjArray.get(j);
-                        String temp = mlwjObj.getString("mlbh");
-                        if(mlbh.equals(temp)){ //目录编号对上了，取相应目录的文件
+                        String tempMlbh = mlwjObj.getString("mlbh");
+                        if(getAJJZType == 1){
+                            if(mlbh.equals(tempMlbh)){  //目录编号对上了，取相应目录的文件
+                                wjxh = mlwjObj.getString("wjxh");
+                                wjmc = mlwjObj.getString("wjmc");
+                                wjhz = mlwjObj.getString("wjhz");
+                                wjsxh = mlwjObj.getInteger("wjsxh");
+                                JzwjObject jzwj = new JzwjObject();
+                                jzwj.mlbh = mlbh; //目录编号
+                                jzwj.wjxh = wjxh; //文件序号
+                                jzwj.wjmc = wjmc; //文件名称
+                                jzwj.wjhz = wjhz; //文件后缀
+                                jzwj.wjsxh = wjsxh; //文件顺序号
+                                //jzwjObjectList.add(jzwj);
+                                getAJJZWJFiles(wsMsgObject, jzwj);
+                            }
+                        }
+                        else{
                             wjxh = mlwjObj.getString("wjxh");
                             wjmc = mlwjObj.getString("wjmc");
                             wjhz = mlwjObj.getString("wjhz");
+                            wjsxh = mlwjObj.getInteger("wjsxh");
                             JzwjObject jzwj = new JzwjObject();
                             jzwj.mlbh = mlbh; //目录编号
                             jzwj.wjxh = wjxh; //文件序号
                             jzwj.wjmc = wjmc; //文件名称
                             jzwj.wjhz = wjhz; //文件后缀
-                            //jzwjObjectList.add(jzwj);
+                            jzwj.wjsxh = wjsxh; //文件顺序号
                             getAJJZWJFiles(wsMsgObject, jzwj);
                         }
                     }
-                    //System.out.println(jzwjObjectList.size());
                 }
             }
-
-
         }
     }
 
@@ -341,6 +366,38 @@ public class QsyjsFileHandler {
         }
     }
 
+    public void testFileSave(String retJson){
+        JSONObject jsonObject = JSONObject.parseObject(retJson);
+        String code = jsonObject.getString("code");
+        Boolean success = jsonObject.getBoolean("success");
+        String message = jsonObject.getString("message");
+        if(success){
+            try{
+                String dataBase64Str = jsonObject.getString("data");
+                byte[] fileByteStream = Base64Utils.decode(dataBase64Str);
+                //文件保存位置
+                File saveDir = new File("D:\\test\\qsyjs\\");
+                if(!saveDir.exists()){
+                    saveDir.mkdir();
+                }
+
+                File file = new File(saveDir + File.separator + "test111.pdf");
+                if(file.exists()) {
+                    file.delete();
+                    file = new File(saveDir + File.separator + "test111.pdf");
+                }
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(fileByteStream);
+                if(fos!=null){
+                    fos.close();
+                }
+            }
+            catch (IOException e){
+
+            }
+        }
+    }
+
     @Value("${cnkiconf.csb.getAJJZWJ}")
     private String getAJJZWJ;
 
@@ -391,18 +448,19 @@ public class QsyjsFileHandler {
             Boolean success = jsonObject.getBoolean("success");
             String message = jsonObject.getString("message");
             if(success){
-                byte[] fileByteStream = jsonObject.getBytes("data");
                 try{
+                    String dataBase64Str = jsonObject.getString("data");
+                    byte[] fileByteStream = Base64Utils.decode(dataBase64Str);
                     //文件保存位置
-                    File saveDir = new File(getQSYJSPath);
+                    File saveDir = new File(getQSYJSPath + File.separator + EncryptionUtils.getMD5(wsMsgObject.bmsah));
                     if(!saveDir.exists()){
                         saveDir.mkdir();
                     }
 
-                    File file = new File(saveDir + File.separator + jzwj.wjmc + jzwj.jzbh);
+                    File file = new File(saveDir + File.separator + jzwj.wjsxh + "_" + jzwj.wjmc + jzwj.wjhz);
                     if(file.exists()) {
                         file.delete();
-                        file = new File(saveDir + File.separator + jzwj.wjmc + jzwj.jzbh);
+                        file = new File(saveDir + File.separator +  jzwj.wjsxh + "_" + jzwj.wjmc + jzwj.wjhz);
                     }
                     FileOutputStream fos = new FileOutputStream(file);
                     fos.write(fileByteStream);
@@ -411,7 +469,7 @@ public class QsyjsFileHandler {
                     }
                 }
                 catch (IOException e){
-
+                    e.printStackTrace();
                 }
             }
         }

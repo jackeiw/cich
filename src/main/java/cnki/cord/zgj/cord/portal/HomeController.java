@@ -152,6 +152,16 @@ public class HomeController {
         return "补录下载完成！";
     }
 
+    @RequestMapping(value = "/testDirGet", method = RequestMethod.GET)
+    public String testDirGet(){
+        WsMessageObject WsMsgObj = new WsMessageObject();
+        WsMsgObj.bmsah = "贵州省院刑诉受[2019]520000100007号";
+        WsMsgObj.dwbm = "520000";
+        WsMsgObj.bsbh = "";
+        handler.getFilesByDir(WsMsgObj);
+        return "通过文件目录下载文件完成！";
+    }
+
     private void findInDir(String targetPath){
         try{
             // 创建 File对象

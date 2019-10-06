@@ -31,6 +31,8 @@ cnkiconf:
     otherapis: GetAJAKXX|tyyw_token+systemid$$GetAJAQZYXX|systemid+tyyw_token
     # 获取文件方式 0:27号接口方式； 1:4、5号接口； 2:先27在4、5号接口
     getFileType: 0
+    # 获取卷宗文件：0:所有文件都获取；1:只获取起诉意见书
+    getAJJZType: 0
     # 获取案件卷宗全目录
     getAJJZQML: GetAJJZQML
     getAJJZQMLVersion: 1.0.0
