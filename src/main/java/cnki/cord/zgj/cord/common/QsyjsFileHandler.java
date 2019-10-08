@@ -134,11 +134,11 @@ public class QsyjsFileHandler {
 
                 if (code.equals("0")) {
                     String url = data; //"http://localhost/files/test.rar";
-                    newLog.info("获取【" + wsMsgObject.bmsah + "】下载地址成功，下载地址:" + url);
+                    newLog.info("【" + wsMsgObject.bmsah + "】下载地址获取成功，下载地址:" + url);
                     //downloadFile(url,wsMsgObject.bmsah,java.util.UUID.randomUUID() + ".zip");
                     downloadFile(url, wsMsgObject,EncryptionUtils.getMD5(wsMsgObject.bmsah) + ".zip");
                 } else {
-                    newLog.info("获取【" + wsMsgObject.bmsah + "】下载地址失败，Info:" + message);
+                    newLog.info("【" + wsMsgObject.bmsah + "】下载地址获取失败，Info:" + message);
                     if(getFileType == 2){
                         getFilesByDir(wsMsgObject);
                     }
@@ -147,11 +147,11 @@ public class QsyjsFileHandler {
         }
         catch (InterruptedException e) {
             e.printStackTrace();
-            newLog.info("获取【" + wsMsgObject.bmsah + "】下载地址异常，Info:" + e.getMessage());
+            newLog.info("【" + wsMsgObject.bmsah + "】下载地址获取异常，Info:" + e.getMessage());
         }
         catch (Exception e){
             e.printStackTrace();
-            newLog.info("获取【" + wsMsgObject.bmsah + "】下载地址异常，Info:" + e.getMessage());
+            newLog.info("【" + wsMsgObject.bmsah + "】下载地址获取异常，Info:" + e.getMessage());
         }
     }
 
@@ -212,11 +212,12 @@ public class QsyjsFileHandler {
         }
         if(ret != null) {
             String retJson = ret.getResponseStr();
-            newLog.info("调用卷宗目录返回：" + retJson);
+            newLog.info("【" +  wsMsgObject.bmsah + "】调用卷宗目录返回：" + retJson);
             JSONObject jsonObject = JSONObject.parseObject(retJson);
             String code = jsonObject.getString("code");
             Boolean success = jsonObject.getBoolean("success");
             String message = jsonObject.getString("message");
+            int getFileFlag = 0;//获取卷宗标识，如果等于0，只获取所有; 等于1, 则获取必要的。
             if(success){
                 String data = jsonObject.getString("data");
                 if(StringUtils.isNotBlank(data)){
@@ -236,6 +237,7 @@ public class QsyjsFileHandler {
                             if(mlxsmc.equals("起诉意见书")){
                                 mlbh = mlObj.getString("mlbh");
                                 mlxsmc = mlObj.getString("mlxsmc");
+                                getFileFlag = 1;
                                 break;
                             }
                         }
@@ -249,7 +251,7 @@ public class QsyjsFileHandler {
                     for(int j = 0; j < jzmlwjArray.size(); j++){
                         JSONObject mlwjObj = (JSONObject)jzmlwjArray.get(j);
                         String tempMlbh = mlwjObj.getString("mlbh");
-                        if(getAJJZType == 1){
+                        if(getAJJZType == 1 && getFileFlag == 1){
                             if(mlbh.equals(tempMlbh)){  //目录编号对上了，取相应目录的文件
                                 wjxh = mlwjObj.getString("wjxh");
                                 wjmc = mlwjObj.getString("wjmc");
@@ -262,7 +264,7 @@ public class QsyjsFileHandler {
                                 jzwj.wjhz = wjhz; //文件后缀
                                 jzwj.wjsxh = wjsxh; //文件顺序号
                                 //jzwjObjectList.add(jzwj);
-                                retResult = retResult || getAJJZWJFiles(wsMsgObject, jzwj);
+                                retResult = retResult | getAJJZWJFiles(wsMsgObject, jzwj);
                             }
                         }
                         else{
@@ -276,14 +278,14 @@ public class QsyjsFileHandler {
                             jzwj.wjmc = wjmc; //文件名称
                             jzwj.wjhz = wjhz; //文件后缀
                             jzwj.wjsxh = wjsxh; //文件顺序号
-                            retResult = retResult || getAJJZWJFiles(wsMsgObject, jzwj);
+                            retResult = retResult | getAJJZWJFiles(wsMsgObject, jzwj);
                         }
                     }
                 }
             }
         }
         else{
-            newLog.info("调用卷宗目录返回为空！");
+            newLog.info("【" +  wsMsgObject.bmsah + "】调用卷宗目录返回为空！");
         }
 
         return retResult;
@@ -455,7 +457,7 @@ public class QsyjsFileHandler {
             Boolean success = jsonObject.getBoolean("success");
             String message = jsonObject.getString("message");
             if(success){
-                newLog.info("获取卷宗文件Get Success!"); //retJson
+                newLog.info("【" +  wsMsgObject.bmsah + "】获取卷宗文件Get Success!"); //retJson
                 try{
                     String dataBase64Str = jsonObject.getString("data");
                     byte[] fileByteStream = Base64Utils.decode(dataBase64Str);
@@ -506,7 +508,7 @@ public class QsyjsFileHandler {
             boolean downOK = HttpUtils.downLoadFromUrl(url, fileName, getQSYJSPath, token);
             String zipPath = "";
             if(downOK) {
-                newLog.info("起诉意见书下载完成：【" + url + "】");
+                newLog.info("【" +  wsMsgObject.bmsah + "】起诉意见书[" + fileName + "]下载完成：url【" + url + "】");
                 //System.out.println("下载完成");
                 zipPath = getQSYJSPath + fileName;
                 //TODO: 需要测试解压包，否则延时再重新下载。
@@ -545,10 +547,10 @@ public class QsyjsFileHandler {
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
 
         String invokeURL = sendFilepathURL.replace("{bmsah}",encoderMD5Str).replace("{zippath}", zipPath);
-        newLog.info("起诉意见书zip包开始解析：【" + invokeURL + "】！");
+        newLog.info("【" +  bmsah + "】起诉意见书zip包开始解析：【" + invokeURL + "】！");
         //触发解压和提取要素事件
         int retCode = HttpUtils.sendGetCode(invokeURL, "");
-        newLog.info("起诉意见书zip包解析完成：【" + retCode + "】！");
+        newLog.info("【" + bmsah + "】起诉意见书zip包解析完成：【" + retCode + "】！");
         if(retCode != 200){
             //TODO: 如果出现请求错误，备份各段时间需要续传
 
@@ -562,10 +564,10 @@ public class QsyjsFileHandler {
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
         String path = getQSYJSPath + encoderMD5Str;
         String invokeURL = sendFilepathURL1.replace("{bmsah}", encoderMD5Str).replace("{path}", path);
-        newLog.info("起诉意见书目录开始解析：【" + invokeURL + "】！");
+        newLog.info("【" + bmsah + "】起诉意见书目录开始解析：【" + invokeURL + "】！");
         //触发解压和提取要素事件
         int retCode = HttpUtils.sendGetCode(invokeURL, "");
-        newLog.info("起诉意见书目录解析完成：【" + retCode + "】！");
+        newLog.info("【" + bmsah + "】起诉意见书目录解析完成：【" + retCode + "】！");
         if(retCode != 200){
             //TODO: 如果出现请求错误，备份各段时间需要续传
 

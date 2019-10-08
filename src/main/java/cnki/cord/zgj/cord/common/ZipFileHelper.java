@@ -97,15 +97,19 @@ public class ZipFileHelper {
      * @throws Exception
      */
     public static boolean testZipFile(String zipPath){
+        ZipFile zipFile;
         try{
-            ZipFile zipFile = new ZipFile(zipPath);
+            zipFile = new ZipFile(zipPath);
             //String encoding = zipFile.getEncoding();
             //unZip(zipPath, targetPath);
+            zipFile.close();
             return true;
         }
         catch (Exception ex){
             ex.printStackTrace();
             return false;
+        }
+        finally {
         }
     }
 

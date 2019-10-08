@@ -2,6 +2,7 @@ package cnki.cord.zgj.cord.portal;
 
 import cnki.cord.zgj.cord.common.EncryptionUtils;
 import cnki.cord.zgj.cord.common.HttpUtils;
+import cnki.cord.zgj.cord.common.ZipFileHelper;
 import cnki.cord.zgj.cord.entity.CnkiConf;
 import cnki.cord.zgj.cord.common.QsyjsFileHandler;
 import cnki.cord.zgj.cord.entity.WsMessageObject;
@@ -38,12 +39,18 @@ public class HomeController {
     private String name;
 
     @GetMapping("getconfig")
+    /**
+     * 测试获取配置文件
+     */
     public String getConfig() {
         return cnkiConf.getName();
         //return name + java.util.UUID.randomUUID() + " " + String.format("{0},{1}",2222,5554);
     }
 
     private static final Logger newLog = LoggerFactory.getLogger(HomeController.class);
+    /**
+     * 测试写日志
+     */
     @RequestMapping(value = "/log")
     @ResponseBody
     public String testLogger(){
@@ -56,6 +63,9 @@ public class HomeController {
     @Autowired
     QsyjsFileHandler handler;
     @GetMapping("testQsyjs")
+    /**
+     * 测试获取起诉意见书
+     */
     public String testGetQSYJS(HttpServletRequest request) {
         WsMessageObject WsMsgObj = new WsMessageObject();
         /*WsMsgObj.bmsah = "汉东省院起诉受[2018]10000100001号";
@@ -85,6 +95,9 @@ public class HomeController {
         return "isOK";
     }
 
+    /**
+     * MD5加密，传过来是URL encode的字符串
+     */
     @RequestMapping(value = "/testMD5/{str}", method = RequestMethod.GET)
     public String testMD5(@PathVariable("str")  String str){
         //str = "贵州省院刑诉受[2019]520000100131号";//"贵州省院刑诉受[2019]520000100024号";//"贵州省院刑诉受[2019]520000100099号";
@@ -95,6 +108,12 @@ public class HomeController {
     private String getQSYJSPath;
     @Value("${cnkiconf.csb.sendFilepathURL}")
     private String sendFilepathURL;
+    @Value("${cnkiconf.csb.sendFilepathURL1}")
+    private String sendFilepathURL1;
+
+    /**
+     * 补录解析触发
+     */
     @RequestMapping(value = "/bulu", method = RequestMethod.GET)
     public String buluQSYJS(){
         // 创建 File对象
@@ -118,6 +137,16 @@ public class HomeController {
                 //System.out.println(f.getAbsolutePath());
                 // 为 文件夹继续遍历
                 //recursiveFiles(f.getAbsolutePath());
+                String directoryName = f.getName();
+                String invokeURL = sendFilepathURL1.replace("{bmsah}",directoryName).replace("{path}",getQSYJSPath + directoryName);
+                newLog.info("补录卷宗开始解析：【" + invokeURL + "】！");
+                //触发解压和提取要素事件
+                int retCode = HttpUtils.sendGetCode(invokeURL, "");
+                newLog.info("补录卷宗解析完成：【" + retCode + "】！");
+                if(retCode != 200){
+                    //TODO: 如果出现请求错误，备份各段时间需要续传
+
+                }
 
             } else if(f.isFile()){  // 判断是否为 文件
                 System.out.print("文件: ");
@@ -126,15 +155,31 @@ public class HomeController {
                 String fileName = f.getName();
                 if(fileName.endsWith("zip"))
                 {
-                    String invokeURL = sendFilepathURL.replace("{bmsah}",fileName.replace(".zip","")).replace("{zippath}",getQSYJSPath + fileName);
-                    newLog.info("补录起诉意见书开始解析：【" + invokeURL + "】！");
-                    //触发解压和提取要素事件
-                    int retCode = HttpUtils.sendGetCode(invokeURL, "");
-                    newLog.info("起诉意见书解析完成：【" + retCode + "】！");
-                    if(retCode != 200){
-                        //TODO: 如果出现请求错误，备份各段时间需要续传
+                    try{
+                        String zipPath = getQSYJSPath + fileName;
+                        String bmsah = fileName.replace(".zip","");
+                        if(!ZipFileHelper.testZipFile(zipPath)){
+                            newLog.info("【" +  bmsah + "】补录解析起诉意见书zip包被损坏！");
+                        }
+                        else if(!ZipFileHelper.containFiles(zipPath, ".pdf")){
+                            newLog.info("【" +  bmsah + "】补录解析起诉意见书zip包文件为空！");
+                        }
+                        else{
+                            String invokeURL = sendFilepathURL.replace("{bmsah}", bmsah).replace("{zippath}", zipPath);
+                            newLog.info("补录起诉意见书开始解析：【" + invokeURL + "】！");
+                            //触发解压和提取要素事件
+                            int retCode = HttpUtils.sendGetCode(invokeURL, "");
+                            newLog.info("起诉意见书解析完成：【" + retCode + "】！");
+                            if(retCode != 200){
+                                //TODO: 如果出现请求错误，备份各段时间需要续传
 
+                            }
+                        }
                     }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+
                 }
 
             } else {
@@ -142,21 +187,31 @@ public class HomeController {
             }
 
         }
-        return "补录完成！";
+        return "补录解析完成！";
     }
 
+    /**
+     * 补录下载在log中存在的部门受案号
+     */
     @RequestMapping(value = "/redownQSYJS", method = RequestMethod.GET)
-    public String redownQSYJS(){
+    public String redownQSYJS(HttpServletRequest request){
         String targetPath = "C:\\Users\\Vincent\\Desktop\\最高检调试\\mq_log";
+        if(StringUtils.isNotBlank(request.getParameter("path"))) {
+            targetPath = request.getParameter("path");
+        }
+        //return targetPath;
         findInDir(targetPath);
         return "补录下载完成！";
     }
 
+    /**
+     * 测试卷宗目录文件下载
+     */
     @RequestMapping(value = "/testDirGet", method = RequestMethod.GET)
     public String testDirGet(){
         WsMessageObject WsMsgObj = new WsMessageObject();
-        WsMsgObj.bmsah = "贵州省院刑诉受[2019]520000100007号";
-        WsMsgObj.dwbm = "520000";
+        WsMsgObj.bmsah = "广东省院刑诉受[2019]440000100029号";
+        WsMsgObj.dwbm = "440000";
         WsMsgObj.bsbh = "";
         handler.getFilesByDir(WsMsgObj);
         return "通过文件目录下载文件完成！";
@@ -187,7 +242,7 @@ public class HomeController {
                     //System.out.println(f.getAbsolutePath());
 
                     String fileName = f.getName();
-                    if(fileName.endsWith("txt") || fileName.endsWith("0"))
+                    if(fileName.endsWith("txt") || fileName.endsWith("0") || fileName.endsWith("log"))
                     {
                         FileInputStream fis = new FileInputStream(f.getAbsolutePath());
                         // 防止路径乱码   如果utf-8 乱码  改GBK     eclipse里创建的txt  用UTF-8，在电脑上自己创建的txt  用GBK
@@ -197,7 +252,7 @@ public class HomeController {
                         while ((line = br.readLine()) != null) {
                             //newLog.info(line);
                             //获取【贵州省院刑诉受[2019]520000100233号】下载地址成功，下载地址:
-                            if (line.indexOf("下载地址:") > 0) {
+                            if (line.indexOf("下载地址") > 0 && line.indexOf("【") > 0) {
                                 newLog.info(line);
                                 try {
                                     String fileNamesPath = getQSYJSPath+"filenames.txt";
@@ -212,13 +267,18 @@ public class HomeController {
                                     BufferedWriter bw = new BufferedWriter(fw);
                                     String bmsah = line.substring(line.indexOf('【')+1,line.indexOf('】'));
                                     //String url = line.substring(line.indexOf("下载地址:"));
-                                    String url = line.substring(line.indexOf("http://"));
-                                    bw.write(bmsah + "|" + EncryptionUtils.getMD5(bmsah) + "|" + url+"\r\n");
+                                    if(line.indexOf("http://")>-1){
+                                        String url = line.substring(line.indexOf("http://"));
+                                        bw.write(bmsah + "|" + EncryptionUtils.getMD5(bmsah) + "|" + url + "\r\n");
+                                    }
+                                    else{
+                                        bw.write(bmsah + "|" + EncryptionUtils.getMD5(bmsah) + "|" + "NO-URL\r\n");
+                                    }
                                     bw.close();
                                     //boolean downOK = HttpUtils.downLoadFromUrl(url,  EncryptionUtils.getMD5(bmsah)+".zip", getQSYJSPath+"new\\", "");
                                     WsMessageObject WsMsgObj = new WsMessageObject();
                                     WsMsgObj.bmsah = bmsah;
-                                    WsMsgObj.dwbm = "520000";
+                                    WsMsgObj.dwbm = bmsah.substring(bmsah.indexOf(']') + 1, bmsah.indexOf(']') + 7); //"520000"; //"440000"
                                     WsMsgObj.bsbh = "";
                                     handler.requestQSYJS(WsMsgObj);
                                     //System.out.println("Done");

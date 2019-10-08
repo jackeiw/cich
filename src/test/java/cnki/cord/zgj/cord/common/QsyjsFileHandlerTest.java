@@ -9,10 +9,13 @@ public class QsyjsFileHandlerTest {
 
     @Test
     public void testJson() {
-        boolean a = true;
+        String aa =  "广东省院刑诉受[2019]440000100029号";
+        Assert.assertEquals("440000", aa.substring(aa.indexOf(']')+1, aa.indexOf(']')+7));
+
+        /*boolean a = true;
         boolean b = true;
         boolean c = a | b;
-        Assert.assertEquals(true, c);
+        Assert.assertEquals(true, c);*/
         //QsyjsFileHandler handler = new QsyjsFileHandler();
         //handler.testJson();
     }
