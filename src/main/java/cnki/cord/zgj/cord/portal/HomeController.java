@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/home")
@@ -204,6 +207,17 @@ public class HomeController {
         return "补录下载完成！";
     }
 
+    @RequestMapping(value = "/tj", method = RequestMethod.GET)
+    public String tongji(HttpServletRequest request){
+        String targetPath = "D:\\test\\tj\\";
+        if(StringUtils.isNotBlank(request.getParameter("path"))) {
+            targetPath = request.getParameter("path");
+        }
+        //return targetPath;
+        TongJiInDir(targetPath);
+        return "补录下载完成！";
+    }
+
     /**
      * 测试卷宗目录文件下载
      */
@@ -217,33 +231,32 @@ public class HomeController {
         return "通过文件目录下载文件完成！";
     }
 
-    private void findInDir(String targetPath){
-        try{
+    private void findInDir(String targetPath) {
+        try {
             // 创建 File对象
             File file = new File(targetPath);
             // 取 文件/文件夹
             File files[] = file.listFiles();
             // 对象为空 直接返回
-            if(files == null){
+            if (files == null) {
                 System.out.println("文件夹不存在！");
             }
             // 目录下文件
-            if(files.length == 0){
+            if (files.length == 0) {
                 System.out.println(targetPath + "该文件夹下没有文件");
             }
 
             // 存在文件 遍历 判断
             for (File f : files) {
-                if(f.isDirectory()){
+                if (f.isDirectory()) {
                     findInDir(f.getAbsolutePath());
 
-                } else if(f.isFile()){  // 判断是否为 文件
+                } else if (f.isFile()) {  // 判断是否为 文件
                     //System.out.print("文件: ");
                     //System.out.println(f.getAbsolutePath());
 
                     String fileName = f.getName();
-                    if(fileName.endsWith("txt") || fileName.endsWith("0") || fileName.endsWith("log"))
-                    {
+                    if (fileName.endsWith("txt") || fileName.endsWith("0") || fileName.endsWith("log")) {
                         FileInputStream fis = new FileInputStream(f.getAbsolutePath());
                         // 防止路径乱码   如果utf-8 乱码  改GBK     eclipse里创建的txt  用UTF-8，在电脑上自己创建的txt  用GBK
                         InputStreamReader isr = new InputStreamReader(fis, "GBK");
@@ -255,7 +268,7 @@ public class HomeController {
                             if (line.indexOf("下载地址") > 0 && line.indexOf("【") > 0) {
                                 newLog.info(line);
                                 try {
-                                    String fileNamesPath = getQSYJSPath+"filenames.txt";
+                                    String fileNamesPath = getQSYJSPath + "filenames.txt";
                                     File fNsfile = new File(fileNamesPath);
 
                                     // if file doesnt exists, then create it
@@ -265,13 +278,12 @@ public class HomeController {
 
                                     FileWriter fw = new FileWriter(fNsfile.getAbsolutePath(), true);
                                     BufferedWriter bw = new BufferedWriter(fw);
-                                    String bmsah = line.substring(line.indexOf('【')+1,line.indexOf('】'));
+                                    String bmsah = line.substring(line.indexOf('【') + 1, line.indexOf('】'));
                                     //String url = line.substring(line.indexOf("下载地址:"));
-                                    if(line.indexOf("http://")>-1){
+                                    if (line.indexOf("http://") > -1) {
                                         String url = line.substring(line.indexOf("http://"));
                                         bw.write(bmsah + "|" + EncryptionUtils.getMD5(bmsah) + "|" + url + "\r\n");
-                                    }
-                                    else{
+                                    } else {
                                         bw.write(bmsah + "|" + EncryptionUtils.getMD5(bmsah) + "|" + "NO-URL\r\n");
                                     }
                                     bw.close();
@@ -297,9 +309,89 @@ public class HomeController {
                     System.out.print("未知错误文件");
                 }
             }
+        } catch (Exception ex) {
+            newLog.error(ex.getMessage());
+        }
+    }
+
+    private void TongJiInDir(String targetPath){
+        try{
+            // 创建 File对象
+            File file = new File(targetPath);
+            // 取 文件/文件夹
+            File files[] = file.listFiles();
+            // 对象为空 直接返回
+            if(files == null){
+                System.out.println("文件夹不存在！");
+            }
+            Map<String, Integer> kvMap = new HashMap<String, Integer>();
+            // 目录下文件
+            if(files.length == 0){
+                System.out.println(targetPath + "该文件夹下没有文件");
+            }
+
+            // 存在文件 遍历 判断
+            for (File f : files) {
+                if(f.isDirectory()){
+                    findInDir(f.getAbsolutePath());
+                } else if(f.isFile()){  // 判断是否为 文件
+                    String fileName = f.getName();
+                    if(fileName.endsWith("txt") || fileName.endsWith("0") || fileName.endsWith("log"))
+                    {
+                        FileInputStream fis = new FileInputStream(f.getAbsolutePath());
+                        // 防止路径乱码   如果utf-8 乱码  改GBK     eclipse里创建的txt  用UTF-8，在电脑上自己创建的txt  用GBK
+                        InputStreamReader isr = new InputStreamReader(fis, "GBK");
+                        BufferedReader br = new BufferedReader(isr);
+                        String line = "";
+                        while ((line = br.readLine()) != null) {
+                            line = line.trim();
+                            if (line.indexOf(".") > 0 ) {
+                                if(kvMap.containsKey(line)){
+                                    kvMap.put(line, kvMap.get(line)+1);
+                                }
+                                else{
+                                    kvMap.put(line, 1);
+                                }
+                            }
+                        }
+                        br.close();
+                        isr.close();
+                        fis.close();
+                    }
+
+                } else {
+                    System.out.print("未知错误文件");
+                }
+            }
+
+            try {
+                String fileNamesPath = getQSYJSPath + "tongji.txt";
+                File fNsfile = new File(fileNamesPath);
+                if (!fNsfile.exists()) {
+                    fNsfile.createNewFile();
+                }
+
+                FileWriter fw = new FileWriter(fNsfile.getAbsolutePath(), true);
+                BufferedWriter bw = new BufferedWriter(fw);
+
+                Iterator iter = kvMap.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry entry = (Map.Entry) iter.next();
+                    Object key = entry.getKey();
+                    Object val = entry.getValue();
+                    bw.write(key + "\t" + val + "\t" + "\r\n");
+                }
+
+                bw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         catch (Exception ex){
             newLog.error(ex.getMessage());
         }
     }
+
+
+
 }
