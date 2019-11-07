@@ -31,7 +31,7 @@ public class HomeController {
     @ResponseBody
     public String getBodyData(@RequestBody WsMessageObject wsObj){
         //TODO
-        System.out.println("接收到消息，此处用来处理接收到的消息"+ wsObj.bsbh + " " + wsObj.dwbm + " " + wsObj.bmsah + " " + wsObj.systemid);
+        System.out.println("接收到消息，此处用来处理接收到的消息："+ wsObj.bsbh + " " + wsObj.dwbm + " " + wsObj.bmsah + " " + wsObj.systemid);
         return "响应成功";
     }
 
