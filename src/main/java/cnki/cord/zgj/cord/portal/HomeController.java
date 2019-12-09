@@ -207,6 +207,7 @@ public class HomeController {
         return "补录下载完成！";
     }
 
+    //统计IP地址
     @RequestMapping(value = "/tj", method = RequestMethod.GET)
     public String tongji(HttpServletRequest request){
         String targetPath = "D:\\test\\tj\\";

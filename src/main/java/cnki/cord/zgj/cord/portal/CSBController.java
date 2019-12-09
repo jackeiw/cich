@@ -132,13 +132,23 @@ public class CSBController {
                                @PathVariable("version") String version,
                                @PathVariable("method") String method, HttpServletRequest request) {
         //newLog.info("请求地址是：" + request.getRequestURL().toString() + "?" + request.getQueryString());
+        String ak = csb_ak;
+        String sk = csb_sk;
+
+        /* 为广东另外需要一个ak和sk，由于广东的接口调试过，需要新的凭证。
+        if(service != null && service.toUpperCase().equals("GETAJXX")){
+            //newLog.info("调用GetAJXX");
+            ak = "510dba6b1613418eb26e95234be1d1cd";
+            sk = "TIR7MQcV9nEn/zMMv8rcCk4t+Hw=";
+        }*/
+
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL(csb_url) // 设置CSB服务地址
                 .api(service) // 设置服务名
                 .version(version) // 设置版本号
                 .method(method) // 设置调用方式, get/post
-                .accessKey(csb_ak)
-                .secretKey(csb_sk); // 设置accessKey 和 设置secretKey
+                .accessKey(ak)
+                .secretKey(sk); // 设置accessKey 和 设置secretKey
         HttpReturn ret = null;
         try {
             //builder.setContentEncoding(ContentEncoding.gzip);// 设置请求消息压缩
@@ -169,11 +179,16 @@ public class CSBController {
                 }
             }
             //kvMap.put("bmsah", "贵州省院刑诉受[2019]520000100046号"); //注意需要编码
-
             //builder.putParamsMap("model", JSON.toJSONString(kvMap));
             // 设置请求参数
-            builder.contentBody(new ContentBody(JSON.toJSONString(kvMap)));
 
+            if(service != null && service.toUpperCase().equals("GETAJXX")) { //获取案件信息只能接收 { "bmsah": ["广东省院刑诉受[2019]440000100124号"] }
+                String[] paramValues = request.getParameterValues("bmsah");
+                builder.contentBody(new ContentBody("{ \"bmsah\": [\"" + paramValues[0] + "\"] }"));
+            }
+            else{
+                builder.contentBody(new ContentBody(JSON.toJSONString(kvMap)));
+            }
             // 设置请求参数
             ret = HttpCaller.invokeReturn(builder.build());
 
