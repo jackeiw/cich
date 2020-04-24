@@ -135,7 +135,7 @@ public class CSBController {
         String ak = csb_ak;
         String sk = csb_sk;
 
-        /* 为广东另外需要一个ak和sk，由于广东的接口调试过，需要新的凭证。
+        /* 为广东另外需要一个ak和sk，由于广东的接口调试更新过，需要新的凭证。
         if(service != null && service.toUpperCase().equals("GETAJXX")){
             //newLog.info("调用GetAJXX");
             ak = "510dba6b1613418eb26e95234be1d1cd";
