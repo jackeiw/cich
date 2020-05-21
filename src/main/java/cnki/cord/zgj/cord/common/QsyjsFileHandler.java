@@ -3,6 +3,7 @@ package cnki.cord.zgj.cord.common;
 import cnki.cord.zgj.cord.entity.BaseMessageObject;
 import cnki.cord.zgj.cord.entity.CnkiConf;
 import cnki.cord.zgj.cord.entity.JzwjObject;
+
 import com.alibaba.csb.sdk.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -534,8 +535,15 @@ public class QsyjsFileHandler {
             ex.printStackTrace();
         }
     }
+
     @Value("${cnkiconf.csb.sendFilepathURL}")
     private String sendFilepathURL;
+    /**
+     * 文书zip解析
+     * @param bmsah 部门受案号
+     * @param zipPath 文书zip文件路径
+     * @throws Exception
+     */
     private void invokeZipExplain(String bmsah, String zipPath){
         String encoderMD5Str = null;
             /*BASE64Encoder encoder = new BASE64Encoder();
@@ -559,6 +567,11 @@ public class QsyjsFileHandler {
 
     @Value("${cnkiconf.csb.sendFilepathURL1}")
     private String sendFilepathURL1;
+    /**
+    * 卷宗解析
+    * @param bmsah 部门受案号
+    * @throws Exception
+    */
     private void invokeDirExplain(String bmsah){
         String encoderMD5Str = null;
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
