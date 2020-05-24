@@ -534,8 +534,16 @@ public class QsyjsFileHandler {
             ex.printStackTrace();
         }
     }
+
     @Value("${cnkiconf.csb.sendFilepathURL}")
     private String sendFilepathURL;
+
+    /**
+     * 起诉意见书zip文件解析，抽取数据并计算类案
+     * @param bmsah 部门受案号
+     * @param zipPath 文书压缩包完整路径
+     * @throws Exception
+     */
     private void invokeZipExplain(String bmsah, String zipPath){
         String encoderMD5Str = null;
             /*BASE64Encoder encoder = new BASE64Encoder();
@@ -559,6 +567,11 @@ public class QsyjsFileHandler {
 
     @Value("${cnkiconf.csb.sendFilepathURL1}")
     private String sendFilepathURL1;
+    /**
+     * 目录解析；抽取数据并计算类案
+     * @param bmsah 部门受案号
+     * @throws Exception
+     */
     private void invokeDirExplain(String bmsah){
         String encoderMD5Str = null;
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
