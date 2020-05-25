@@ -538,17 +538,11 @@ public class QsyjsFileHandler {
 
     @Value("${cnkiconf.csb.sendFilepathURL}")
     private String sendFilepathURL;
-    /**
-     * 文书zip解析
-     * @param bmsah 部门受案号
-     * @param zipPath 文书zip文件路径
-     * @throws Exception
-     */
 
     /**
      * 起诉意见书zip文件解析，抽取数据并计算类案
      * @param bmsah 部门受案号
-     * @param zipPath 文书压缩包完整路径
+     * @param zipPath 文书zip压缩包完整路径
      * @throws Exception
      */
     private void invokeZipExplain(String bmsah, String zipPath){
@@ -574,13 +568,9 @@ public class QsyjsFileHandler {
 
     @Value("${cnkiconf.csb.sendFilepathURL1}")
     private String sendFilepathURL1;
+
     /**
-    * 卷宗解析
-    * @param bmsah 部门受案号
-    * @throws Exception
-    */
-    /**
-     * 目录解析；抽取数据并计算类案
+     * 卷宗解析，目录解析；抽取数据并计算类案
      * @param bmsah 部门受案号
      * @throws Exception
      */
