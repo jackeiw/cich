@@ -37,6 +37,9 @@ public class QsyjsFileHandler {
     @Autowired
     private CnkiConf cnkiConf1;
 
+    @Autowired
+    RabbitMQProxy rabbitMQProxy;
+
     @Value("${cnkiconf.csb.url}")
     private String csb_url;
 
@@ -66,6 +69,55 @@ public class QsyjsFileHandler {
 
     @Value("${cnkiconf.csb.getFileType}")
     private int getFileType;
+
+    @Value("${cnkiconf.csb.sendFilepathURL}")
+    private String sendFilepathURL;
+
+    @Value("${cnkiconf.csb.sendFilepathURL1}")
+    private String sendFilepathURL1;
+
+    @Value("${cnkiconf.csb.qsyjsCalMQ}")
+    private String qsyjsCalMQ;
+
+    @Value("${cnkiconf.csb.jzCalMQ}")
+    private String jzCalMQ;
+
+    @Value("${cnkiconf.csb.getAJJZType}")
+    private int getAJJZType;
+
+    @Value("${cnkiconf.csb.getAJJZQML}")
+    private String getAJJZQML;
+
+    @Value("${cnkiconf.csb.getAJJZQMLVersion}")
+    private String getAJJZQMLVersion;
+
+    @Value("${cnkiconf.csb.getAJJZQMLMethon}")
+    private String getAJJZQMLMethon;
+
+    @Value("${cnkiconf.csb.getAJJZQMLSystemId}")
+    private String getAJJZQMLSystemId;
+
+    @Value("${cnkiconf.csb.getAJJZQMLToken}")
+    private String getAJJZQMLToken;
+
+    @Value("${cnkiconf.csb.getAJJZWJ}")
+    private String getAJJZWJ;
+
+    @Value("${cnkiconf.csb.getAJJZWJVersion}")
+    private String getAJJZWJVersion;
+
+    @Value("${cnkiconf.csb.getAJJZWJMethon}")
+    private String getAJJZWJMethon;
+
+    @Value("${cnkiconf.csb.getAJJZWJSystemId}")
+    private String getAJJZWJSystemId;
+
+    @Value("${cnkiconf.csb.getAJJZWJToken}")
+    private String getAJJZWJToken;
+
+    @Value("${cnkiconf.csb.getQSYJSPath}")
+    private String getQSYJSPath;
+
     /**
      * 获取起诉意见书
      * @param wsMsgObject 文书基础实体
@@ -168,23 +220,6 @@ public class QsyjsFileHandler {
         }
     }
 
-    @Value("${cnkiconf.csb.getAJJZType}")
-    private int getAJJZType;
-
-    @Value("${cnkiconf.csb.getAJJZQML}")
-    private String getAJJZQML;
-
-    @Value("${cnkiconf.csb.getAJJZQMLVersion}")
-    private String getAJJZQMLVersion;
-
-    @Value("${cnkiconf.csb.getAJJZQMLMethon}")
-    private String getAJJZQMLMethon;
-
-    @Value("${cnkiconf.csb.getAJJZQMLSystemId}")
-    private String getAJJZQMLSystemId;
-
-    @Value("${cnkiconf.csb.getAJJZQMLToken}")
-    private String getAJJZQMLToken;
     /**
      * 获取案件卷宗全目录
      * @param wsMsgObject 文书基础实体
@@ -409,20 +444,6 @@ public class QsyjsFileHandler {
         }
     }
 
-    @Value("${cnkiconf.csb.getAJJZWJ}")
-    private String getAJJZWJ;
-
-    @Value("${cnkiconf.csb.getAJJZWJVersion}")
-    private String getAJJZWJVersion;
-
-    @Value("${cnkiconf.csb.getAJJZWJMethon}")
-    private String getAJJZWJMethon;
-
-    @Value("${cnkiconf.csb.getAJJZWJSystemId}")
-    private String getAJJZWJSystemId;
-
-    @Value("${cnkiconf.csb.getAJJZWJToken}")
-    private String getAJJZWJToken;
     /**
      * 获取案件卷宗文件
      * @param wsMsgObject 文书基础实体
@@ -495,8 +516,6 @@ public class QsyjsFileHandler {
         return getOK;
     }
 
-    @Value("${cnkiconf.csb.getQSYJSPath}")
-    private String getQSYJSPath;
     /**
      * 下载起诉意见书
      * @param url 文件下载地址
@@ -523,7 +542,7 @@ public class QsyjsFileHandler {
                     getFilesByDir(wsMsgObject);
                 }
                 else{
-                    //invokeZipExplain(wsMsgObject.bmsah, zipPath);
+                    invokeZipExplain(wsMsgObject.bmsah, zipPath);
                     //
                 }
             }
@@ -537,9 +556,6 @@ public class QsyjsFileHandler {
             ex.printStackTrace();
         }
     }
-
-    @Value("${cnkiconf.csb.sendFilepathURL}")
-    private String sendFilepathURL;
 
     /**
      * 起诉意见书zip文件解析，抽取数据并计算类案
@@ -557,7 +573,15 @@ public class QsyjsFileHandler {
             }*/
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
 
-        String invokeURL = sendFilepathURL.replace("{bmsah}",encoderMD5Str).replace("{zippath}", zipPath);
+        try {
+            rabbitMQProxy.sendQueueMessage(qsyjsCalMQ, bmsah);
+            newLog.info("【" + bmsah + "】起诉意见书zip包解析消息发送完成：【" + encoderMD5Str + "】！");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*String invokeURL = sendFilepathURL.replace("{bmsah}",encoderMD5Str).replace("{zippath}", zipPath);
         newLog.info("【" +  bmsah + "】起诉意见书zip包开始解析：【" + invokeURL + "】！");
         //触发解压和提取要素事件
         int retCode = HttpUtils.sendGetCode(invokeURL, "");
@@ -565,20 +589,27 @@ public class QsyjsFileHandler {
         if(retCode != 200){
             //TODO: 如果出现请求错误，备份各段时间需要续传
 
-        }
+        }*/
     }
-
-    @Value("${cnkiconf.csb.sendFilepathURL1}")
-    private String sendFilepathURL1;
 
     /**
      * 卷宗解析，目录解析；抽取数据并计算类案
      * @param bmsah 部门受案号
      * @throws Exception
      */
-    private void invokeDirExplain(String bmsah){
+    public void invokeDirExplain(String bmsah){
         String encoderMD5Str = null;
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
+
+        try {
+            rabbitMQProxy.sendQueueMessage(jzCalMQ, bmsah);
+            newLog.info("【" + bmsah + "】起诉意见书目录解析消息发送完成：【" + encoderMD5Str + "】！");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*
         String path = getQSYJSPath + encoderMD5Str;
         String invokeURL = sendFilepathURL1.replace("{bmsah}", encoderMD5Str).replace("{path}", path);
         newLog.info("【" + bmsah + "】起诉意见书目录开始解析：【" + invokeURL + "】！");
@@ -588,6 +619,6 @@ public class QsyjsFileHandler {
         if(retCode != 200){
             //TODO: 如果出现请求错误，备份各段时间需要续传
 
-        }
+        }*/
     }
 }

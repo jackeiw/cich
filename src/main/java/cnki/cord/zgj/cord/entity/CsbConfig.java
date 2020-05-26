@@ -71,4 +71,18 @@ public class CsbConfig {
         this.sendFilepathURL = sendFilepathURL;
     }
 
+    private String qsyjsCalMQ;
+    public String getQsyjsCalMQ() {
+        return qsyjsCalMQ;
+    }
+    public void setQsyjsCalMQ(String qsyjsCalMQ) {
+        this.qsyjsCalMQ = qsyjsCalMQ;
+    }
+
+    private String jzCalMQ;
+    public String getJzCalMQ() {
+        return jzCalMQ;
+    }
+    public void setJzCalMQ(String jzCalMQ) { this.jzCalMQ = jzCalMQ; }
+
 }

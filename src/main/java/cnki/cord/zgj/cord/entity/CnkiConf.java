@@ -17,4 +17,10 @@ public class CnkiConf {
     private CsbConfig csb;
     public CsbConfig getCsb(){ return csb; }
     public void setCsb(CsbConfig csb){ this.csb = csb; }
+
+    private RabbitMQConfig rabbitmq;
+    public RabbitMQConfig getRabbitmq() { return rabbitmq; }
+    public void setRabbitmq(RabbitMQConfig rabbitmq) {
+        this.rabbitmq = rabbitmq;
+    }
 }

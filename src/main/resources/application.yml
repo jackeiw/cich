@@ -45,11 +45,16 @@ cnkiconf:
     getAJJZWJMethon: post
     getAJJZWJSystemId: 440000
     getAJJZWJToken: test
-    #激活类案推送的文件夹解析接口
+    # 激活类案推送的文件夹解析接口
     sendFilepathURL1: http://127.0.0.1/cich/request/ExecPDFAPI.ashx?bmsah={bmsah}&path={path}
-  rabbitMQ:
+    # 激活文书解析接口消息
+    qsyjsCalMQ: CNKI_ZGJ_QSYJS
+    # 激活卷宗解析接口消息
+    jzCalMQ: CNKI_ZGJ_JZ
+  rabbitmq:
     server: 192.168.107.98
-    port: 5672  #默认
+    # 默认 5672
+    port: 5672
 
 
 logging:

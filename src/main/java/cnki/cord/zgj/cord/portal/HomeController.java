@@ -65,10 +65,11 @@ public class HomeController {
     private String csb_url;
     @Autowired
     QsyjsFileHandler handler;
-    @GetMapping("testQsyjs")
+
     /**
      * 测试获取起诉意见书
      */
+    @GetMapping("testQsyjs")
     public String testGetQSYJS(HttpServletRequest request) {
         WsMessageObject WsMsgObj = new WsMessageObject();
         /*WsMsgObj.bmsah = "汉东省院起诉受[2018]10000100001号";
@@ -96,6 +97,11 @@ public class HomeController {
         newLog.info("===DEBUG===\n测试文书：【" + WsMsgObj.bmsah + "】");
         handler.requestQSYJS(WsMsgObj);
         return "isOK";
+    }
+
+    @GetMapping("invokeDir")
+    public void invokeDirExp() {
+        handler.invokeDirExplain("1000");
     }
 
     /**
