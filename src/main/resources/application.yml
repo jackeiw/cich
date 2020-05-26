@@ -47,6 +47,9 @@ cnkiconf:
     getAJJZWJToken: test
     #激活类案推送的文件夹解析接口
     sendFilepathURL1: http://127.0.0.1/cich/request/ExecPDFAPI.ashx?bmsah={bmsah}&path={path}
+  rabbitMQ: 192.168.107.98
+  #rabbitMQPort: 5672 默认
+
 
 logging:
   file: D:\test\log\springboot.log
