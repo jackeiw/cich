@@ -24,7 +24,8 @@ public class RabbitMQController {
     @GetMapping("test")
     public String sendAsc() {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("192.168.107.98");
+        //factory.setHost("192.168.107.98");
+        factory.setHost("192.168.56.5");
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
