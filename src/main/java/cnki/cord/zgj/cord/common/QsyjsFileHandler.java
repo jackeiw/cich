@@ -4,6 +4,7 @@ import cnki.cord.zgj.cord.entity.BaseMessageObject;
 import cnki.cord.zgj.cord.entity.CnkiConf;
 import cnki.cord.zgj.cord.entity.JzwjObject;
 
+import cnki.cord.zgj.cord.sender.RabbitMQProxy;
 import com.alibaba.csb.sdk.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -522,7 +523,8 @@ public class QsyjsFileHandler {
                     getFilesByDir(wsMsgObject);
                 }
                 else{
-                    invokeZipExplain(wsMsgObject.bmsah, zipPath);
+                    //invokeZipExplain(wsMsgObject.bmsah, zipPath);
+                    //
                 }
             }
             else
