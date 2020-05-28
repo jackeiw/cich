@@ -47,7 +47,7 @@ public class RabbitMQController {
     RabbitMQProxy rabbitMQProxy;
 
     @RequestMapping(value ="test1/{mq}/{msg}", method = RequestMethod.GET)
-    public String sendAsc1(@PathVariable("mq")  String mq, @PathVariable("mq")  String msg) {
+    public String sendAsc1(@PathVariable("mq")  String mq, @PathVariable("msg")  String msg) {
         try {
             //rabbitMQProxy.sendQueueMessage("hello1", "努力奋斗！");
             rabbitMQProxy.sendQueueMessage(mq, msg);
@@ -59,4 +59,28 @@ public class RabbitMQController {
         }
     }
 
+
+    @Value("${cnkiconf.csb.qsyjsCalMQ}")
+    private String qsyjsCalMQ;
+
+    @GetMapping("more")
+    public String sendMore() {
+        ConnectionFactory factory = new ConnectionFactory();
+        //factory.setHost("192.168.107.98");
+        factory.setHost("192.168.56.5");
+        try (Connection connection = factory.newConnection();
+             Channel channel = connection.createChannel()) {
+            channel.queueDeclare(qsyjsCalMQ, false, false, false, null);
+            for(int i=0; i<10000; i++)
+            {
+                String message = "Hello World!2020,i am " + i;
+                channel.basicPublish("", qsyjsCalMQ, null, message.getBytes());
+                System.out.println(" [x] Sent '" + message + "'");
+            }
+            return "it's OK!";
+        } catch (TimeoutException | IOException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
 }

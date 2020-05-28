@@ -52,7 +52,8 @@ cnkiconf:
     # 激活卷宗解析接口消息
     jzCalMQ: CNKI_ZGJ_JZ
   rabbitmq:
-    server: 192.168.107.98
+    #server: 192.168.107.98
+    server: 192.168.56.5
     # 默认 5672
     port: 5672
 
