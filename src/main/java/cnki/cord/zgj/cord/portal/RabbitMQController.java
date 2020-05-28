@@ -4,9 +4,7 @@ import cnki.cord.zgj.cord.sender.RabbitMQProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -48,10 +46,11 @@ public class RabbitMQController {
     @Autowired
     RabbitMQProxy rabbitMQProxy;
 
-    @GetMapping("test1")
-    public String sendAsc1() {
+    @RequestMapping(value ="test1/{mq}/{msg}", method = RequestMethod.GET)
+    public String sendAsc1(@PathVariable("mq")  String mq, @PathVariable("mq")  String msg) {
         try {
-            rabbitMQProxy.sendQueueMessage("hello1", "努力奋斗！");
+            //rabbitMQProxy.sendQueueMessage("hello1", "努力奋斗！");
+            rabbitMQProxy.sendQueueMessage(mq, msg);
             return "it's OK!";
         }
         catch (Exception e) {
