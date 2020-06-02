@@ -579,6 +579,7 @@ public class QsyjsFileHandler {
         }
         catch (Exception e) {
             e.printStackTrace();
+            newLog.info("【" + bmsah + "】起诉意见书zip包解析消息发送失败：【" + encoderMD5Str + "】！");
         }
 
         /*String invokeURL = sendFilepathURL.replace("{bmsah}",encoderMD5Str).replace("{zippath}", zipPath);
@@ -607,6 +608,7 @@ public class QsyjsFileHandler {
         }
         catch (Exception e) {
             e.printStackTrace();
+            newLog.info("【" + bmsah + "】起诉意见书目录解析消息发送失败：【" + encoderMD5Str + "】！");
         }
 
         /*

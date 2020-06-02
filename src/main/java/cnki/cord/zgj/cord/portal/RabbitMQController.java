@@ -22,8 +22,7 @@ public class RabbitMQController {
     @GetMapping("test")
     public String sendAsc() {
         ConnectionFactory factory = new ConnectionFactory();
-        //factory.setHost("192.168.107.98");
-        factory.setHost("192.168.56.5");
+        factory.setHost(rabbitMQServer);
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
@@ -66,16 +65,39 @@ public class RabbitMQController {
     @GetMapping("more")
     public String sendMore() {
         ConnectionFactory factory = new ConnectionFactory();
-        //factory.setHost("192.168.107.98");
-        factory.setHost("192.168.56.5");
+        factory.setHost(rabbitMQServer);
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(qsyjsCalMQ, false, false, false, null);
-            for(int i=0; i<10000; i++)
+            for(int i=0; i<5000; i++)
             {
-                String message = "Hello World!2020,i am " + i;
+                String message = String.valueOf(i);
+                //String message = "Hello World!2020,i am " + i;
                 channel.basicPublish("", qsyjsCalMQ, null, message.getBytes());
                 System.out.println(" [x] Sent '" + message + "'");
+            }
+            return "it's OK!";
+        } catch (TimeoutException | IOException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    @Value("${cnkiconf.csb.jzCalMQ}")
+    private String jzCalMQ;
+
+    @GetMapping("jz")
+    public String sendMoreJz() {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(rabbitMQServer);
+        try (Connection connection = factory.newConnection();
+             Channel channel = connection.createChannel()) {
+            channel.queueDeclare(jzCalMQ, false, false, false, null);
+            for(int i=0; i<500; i++)
+            {
+                String message = "JZ_" + i;
+                channel.basicPublish("", jzCalMQ, null, message.getBytes());
+                System.out.println(" [x-JZ] Sent '" + message + "'");
             }
             return "it's OK!";
         } catch (TimeoutException | IOException e) {
