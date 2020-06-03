@@ -69,7 +69,7 @@ public class RabbitMQController {
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(qsyjsCalMQ, false, false, false, null);
-            for(int i=0; i<5000; i++)
+            for(int i=0; i<10000; i++)
             {
                 String message = String.valueOf(i);
                 //String message = "Hello World!2020,i am " + i;
@@ -93,7 +93,7 @@ public class RabbitMQController {
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(jzCalMQ, false, false, false, null);
-            for(int i=0; i<500; i++)
+            for(int i=0; i<10000; i++)
             {
                 String message = "JZ_" + i;
                 channel.basicPublish("", jzCalMQ, null, message.getBytes());
