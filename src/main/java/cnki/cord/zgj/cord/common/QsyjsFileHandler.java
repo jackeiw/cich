@@ -574,7 +574,7 @@ public class QsyjsFileHandler {
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
 
         try {
-            rabbitMQProxy.sendQueueMessage(qsyjsCalMQ, bmsah);
+            rabbitMQProxy.sendQueueMessage(qsyjsCalMQ, encoderMD5Str);
             newLog.info("【" + bmsah + "】起诉意见书zip包解析消息发送完成：【" + encoderMD5Str + "】！");
         }
         catch (Exception e) {
@@ -603,7 +603,7 @@ public class QsyjsFileHandler {
         encoderMD5Str = EncryptionUtils.getMD5(bmsah);
 
         try {
-            rabbitMQProxy.sendQueueMessage(jzCalMQ, bmsah);
+            rabbitMQProxy.sendQueueMessage(jzCalMQ, encoderMD5Str);
             newLog.info("【" + bmsah + "】起诉意见书目录解析消息发送完成：【" + encoderMD5Str + "】！");
         }
         catch (Exception e) {
