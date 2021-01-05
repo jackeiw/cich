@@ -1,0 +1,65 @@
+################### 消息系统配置信息 ###############
+#msgsys代表以下配置是消息系统相关的配置
+msgsys:
+  #IP代表消息子系统运行的服务器及访问端口 143.176.22.60:8080/mqxx-service
+  IP: 143.208.167.253:8080
+  #使用消息的微服务的组ID，需要标识唯一性。
+  GROUP_ID: TYYW_LCBA_CNKI-SYS_620000
+server:
+  port: 8080
+cnkiconf:
+  name: test
+  csb:
+    url: http://csb-broker.zjj.gs.jcy:8086/CSB
+    ak: 93f418237def4f9fb293335d127c2451
+    sk: RY8253JJUSFTE+hAMSlhSBooWSo=
+    #获取起诉意见书接口
+    getQSYJS: GetQSYJS
+    #接口版本号
+    getQSYJSVersion: 1.0.0
+    #接口提交方法
+    getQSYJSMethon: post
+    #接口获取延时（毫秒）
+    getQSYJSWait: 100
+    #存放目录
+    getQSYJSPath: D:\test\qsyjs\new20191007\
+    #激活类案推送的zip解析接口
+    sendFilepathURL: http://127.0.0.1/cich/request/ExecZipAPI.ashx?bmsah={bmsah}&zippath={zippath}
+    getQSYJSSystemId: 440000
+    getQSYJSToken: test
+    # 获取案由接口参数
+    otherapis: GetAJAKXX|tyyw_token+systemid$$GetAJAQZYXX|systemid+tyyw_token
+    # 获取文件方式 0:27号接口方式； 1:4、5号接口； 2:先27在4、5号接口
+    getFileType: 2
+    # 获取卷宗文件：0:所有文件都获取；1:只获取起诉意见书
+    getAJJZType: 0
+    # 获取案件卷宗全目录
+    getAJJZQML: GetAJJZQML
+    getAJJZQMLVersion: 1.0.0
+    getAJJZQMLMethon: post
+    getAJJZQMLSystemId: 440000
+    getAJJZQMLToken: test
+    # 获取案件卷宗文件
+    getAJJZWJ: GetAJJZWJ
+    getAJJZWJVersion: 1.0.0
+    getAJJZWJMethon: post
+    getAJJZWJSystemId: 440000
+    getAJJZWJToken: test
+    # 激活类案推送的文件夹解析接口
+    sendFilepathURL1: http://127.0.0.1/cich/request/ExecPDFAPI.ashx?bmsah={bmsah}&path={path}
+    # 激活文书解析接口消息
+    qsyjsCalMQ: CNKI_ZGJ_QSYJS
+    # 激活卷宗解析接口消息
+    jzCalMQ: CNKI_ZGJ_JZ
+  rabbitmq:
+    server: 10.120.150.174
+    #server: 192.168.56.5
+    # 默认 5672
+    port: 5672
+
+
+logging:
+  file: D:\test\log\springboot.log
+
+
+
