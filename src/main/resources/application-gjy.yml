@@ -3,7 +3,8 @@
 msgsys:
   #IP代表消息子系统运行的服务器及访问端口 143.176.22.60:8080/mqxx-service
   IP: 143.3.213.28:8080
-  #使用消息的微服务的组ID，需要标识唯一性。 test_msg_cnki :// TYYW_LCBA_CNKI-SYS_520000
+  #使用消息的微服务的组ID，需要标识唯一性。 test_msg_cnki :// TYYW_LCBA_CNKI-SYS_520000，新建消费的时候注意，真实的ID是
+  #CID_{GROUP_ID}_consumer_common
   GROUP_ID: TYYW_LCBA_CNKI-SYS_100000
 server:
   port: 8080
