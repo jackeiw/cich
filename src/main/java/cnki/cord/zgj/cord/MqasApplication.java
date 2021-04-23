@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 // TODO: 正式发布需要打开这里
-@EnableMQ
+//@EnableMQ
 public class MqasApplication {
 
     public static void main(String[] args) {

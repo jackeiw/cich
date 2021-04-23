@@ -1,0 +1,10 @@
+{
+  "groups": [
+    {
+      "name": "cnkiconf",
+      "type": "cnki.cord.zgj.cord.entity.CnkiConf",
+      "sourceType": "cnki.cord.zgj.cord.entity.CnkiConf"
+    }
+  ],
+  "hints": []
+}

@@ -6,6 +6,7 @@ import cnki.cord.zgj.cord.common.ZipFileHelper;
 import cnki.cord.zgj.cord.entity.CnkiConf;
 import cnki.cord.zgj.cord.common.QsyjsFileHandler;
 import cnki.cord.zgj.cord.entity.WsMessageObject;
+import cnki.cord.zgj.cord.receiver.WenshuMsgReceiverProxy;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/home")
 public class HomeController {
+    private static final Logger newLog = LoggerFactory.getLogger(HomeController.class);
     @GetMapping("test")
     public String sendAsc() {
+        System.out.println("服务启动！");
+        newLog.info("服务启动！2");
         return "it's OK!";
     }
 
@@ -50,7 +54,6 @@ public class HomeController {
         //return name + java.util.UUID.randomUUID() + " " + String.format("{0},{1}",2222,5554);
     }
 
-    private static final Logger newLog = LoggerFactory.getLogger(HomeController.class);
     /**
      * 测试写日志
      */
