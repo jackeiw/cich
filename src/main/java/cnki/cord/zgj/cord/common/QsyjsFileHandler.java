@@ -255,23 +255,24 @@ public class QsyjsFileHandler {
             Boolean success = jsonObject.getBoolean("success");
             String message = jsonObject.getString("message");
             int getFileFlag = 0;//获取卷宗标识，如果等于0，只获取所有; 等于1, 则获取必要的。
-            if(success){
+            if(success) {
                 String data = jsonObject.getString("data");
-                if(StringUtils.isNotBlank(data)){
+                if (StringUtils.isNotBlank(data)) {
                     //卷宗目录
                     JSONObject mlObject = JSONObject.parseObject(data);
                     String mlbh = null; //目录编号
-                    if(getAJJZType == 1){
+                    if (getAJJZType == 1) {
+                        //卷宗目录
                         JSONArray jzmlArray = mlObject.getJSONArray("jzml");
                         int mllx; //目录类型
                         String mlxsmc = null; //目录显示名称
-                        for(int i = 0; i < jzmlArray.size(); i++){
-                            JSONObject mlObj = (JSONObject)jzmlArray.get(i);
+                        for (int i = 0; i < jzmlArray.size(); i++) {
+                            JSONObject mlObj = (JSONObject) jzmlArray.get(i);
                             /*mllx = mlObj.getInteger("mllx");
                             if(mllx == 1){
                                 break;
                             }*/
-                            if(mlxsmc.equals("起诉意见书")){
+                            if (mlxsmc.equals("起诉意见书")) {
                                 mlbh = mlObj.getString("mlbh");
                                 mlxsmc = mlObj.getString("mlxsmc");
                                 getFileFlag = 1;
@@ -281,15 +282,15 @@ public class QsyjsFileHandler {
                     }
 
                     //List<JzwjObject> jzwjObjectList = new LinkedList<JzwjObject>();
-                    String wjxh,wjmc,wjhz;
+                    String wjxh, wjmc, wjhz;
                     int wjsxh;
                     //卷宗文件
                     JSONArray jzmlwjArray = mlObject.getJSONArray("jzmlwj");
-                    for(int j = 0; j < jzmlwjArray.size(); j++){
-                        JSONObject mlwjObj = (JSONObject)jzmlwjArray.get(j);
-                        String tempMlbh = mlwjObj.getString("mlbh");
-                        if(getAJJZType == 1 && getFileFlag == 1){
-                            if(mlbh.equals(tempMlbh)){  //目录编号对上了，取相应目录的文件
+                    if (getAJJZType == 1 && getFileFlag == 1) {  //如果找到了起诉意见书目录
+                        for (int j = 0; j < jzmlwjArray.size(); j++) {
+                            JSONObject mlwjObj = (JSONObject) jzmlwjArray.get(j);
+                            String tempMlbh = mlwjObj.getString("mlbh");
+                            if (mlbh.equals(tempMlbh)) {  //目录编号对上了，取相应目录的文件
                                 wjxh = mlwjObj.getString("wjxh");
                                 wjmc = mlwjObj.getString("wjmc");
                                 wjhz = mlwjObj.getString("wjhz");
@@ -301,10 +302,15 @@ public class QsyjsFileHandler {
                                 jzwj.wjhz = wjhz; //文件后缀
                                 jzwj.wjsxh = wjsxh; //文件顺序号
                                 //jzwjObjectList.add(jzwj);
-                                retResult = retResult | getAJJZWJFiles(wsMsgObject, jzwj);
+                                retResult = retResult | getAJJZWJFiles(wsMsgObject, jzwj); //下载完所有起诉意见书
                             }
                         }
-                        else{
+                    }
+
+                    if (!retResult) {  //未获取到起诉意见书则全部下载
+                        for (int j = 0; j < jzmlwjArray.size(); j++) {
+                            JSONObject mlwjObj = (JSONObject) jzmlwjArray.get(j);
+                            String tempMlbh = mlwjObj.getString("mlbh");
                             wjxh = mlwjObj.getString("wjxh");
                             wjmc = mlwjObj.getString("wjmc");
                             wjhz = mlwjObj.getString("wjhz");
